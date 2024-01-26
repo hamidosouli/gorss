@@ -59,6 +59,30 @@ func fromDBToFeedFollow(dbFeedFollow database.FeedFollow) FeedFollow {
 		FeedID:    dbFeedFollow.FeedID,
 	}
 }
+func fromDBToPost(post database.Post) Post {
+	var description *string
+	if post.Description.Valid {
+		description = &post.Description.String // this get address
+	}
+	return Post{
+		ID:          post.ID,
+		CreatedAt:   post.CreatedAt,
+		UpdatedAt:   post.UpdatedAt,
+		Title:       post.Title,
+		Description: description,
+		PublishedAt: post.PublishedAt,
+		Url:         post.Url,
+		FeedID:      post.FeedID,
+	}
+}
+
+func fromDBToPosts(post []database.Post) []Post {
+	posts := []Post{}
+	for _, singlePost := range post {
+		posts = append(posts, fromDBToPost(singlePost))
+	}
+	return posts
+}
 func fromDBToFeeds(dbFeeds []database.Feed) []Feed {
 	feeds := []Feed{}
 	for _, dbFeed := range dbFeeds {
@@ -72,4 +96,15 @@ func fromDBToFeedsFollows(dbFeeds []database.FeedFollow) []FeedFollow {
 		feeds = append(feeds, fromDBToFeedFollow(dbFeed))
 	}
 	return feeds
+}
+
+type Post struct {
+	ID          uuid.UUID `json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Title       string    `json:"title"`
+	Description *string   `json:"description"` // sql.NullString is nested, we use pointer so we can assign nil
+	PublishedAt time.Time `json:"published_at"`
+	Url         string    `json:"url"`
+	FeedID      uuid.UUID `json:"feed_id"`
 }

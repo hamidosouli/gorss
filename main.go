@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type apiConfig struct {
@@ -19,6 +20,12 @@ type apiConfig struct {
 
 func main() {
 
+	//rssFeed, err := urlToFeed("https://www.wagslane.dev/index.xml")
+	//if err != nil {
+	//	log.Fatal(err)
+	//	return
+	//}
+	//fmt.Printf("got rssFeed from url and description for channel is %v", rssFeed.Channel.Description)
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
@@ -61,6 +68,7 @@ func main() {
 	v1Router.Get("/feeds", apiCfg.handlerGetFeed)
 	v1Router.Post("/feed_follow", apiCfg.middlewareAuth(apiCfg.handlerCreateFeedFollow))
 	v1Router.Get("/feed_follow", apiCfg.middlewareAuth(apiCfg.handlerGetFeedFollow))
+	v1Router.Get("/posts", apiCfg.middlewareAuth(apiCfg.handlerGetPostsByUser))
 	v1Router.Delete("/feed_follow/{id}", apiCfg.middlewareAuth(apiCfg.handlerDeleteFeedFollow))
 	v1Router.Post("/me", apiCfg.middlewareAuth(apiCfg.handlerGetUserByApiKey))
 
@@ -73,6 +81,7 @@ func main() {
 
 	log.Printf("server starting on port %v", portString)
 
+	go startScraping(apiCfg.DB, 10, time.Minute)
 	listenErr := server.ListenAndServe()
 	if listenErr != nil {
 		log.Fatal(listenErr)
