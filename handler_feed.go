@@ -9,9 +9,10 @@ import (
 	"time"
 )
 
-func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
+func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		Name string `json:"name"`
+		URL  string `json:"url"`
 	}
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
@@ -20,20 +21,27 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 		responseError(w, 400, fmt.Sprintf("Error parsing json: %v", err))
 		return
 	}
-	user, err := apiCfg.DB.CreateUser(r.Context(), database.CreateUserParams{
+	feed, err := apiCfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 		Name:      params.Name,
+		Url:       params.URL,
+		UserID:    user.ID,
 	})
 	if err != nil {
 		responseError(w, 500, fmt.Sprintf("Error creating user: %v", err))
 		return
 	}
 
-	responseJson(w, 201, fromDBToUser(user))
+	responseJson(w, 201, fromDBToFeed(feed))
 }
 
-func (apiCfg *apiConfig) handlerGetUserByApiKey(w http.ResponseWriter, r *http.Request, user database.User) {
-	responseJson(w, 200, fromDBToUser(user))
+func (apiCfg *apiConfig) handlerGetFeed(w http.ResponseWriter, r *http.Request) {
+	feeds, err := apiCfg.DB.GetFeeds(r.Context())
+	if err != nil {
+		responseError(w, 500, fmt.Sprintf("Error creating user: %v", err))
+		return
+	}
+	responseJson(w, 201, fromDBToFeeds(feeds))
 }
