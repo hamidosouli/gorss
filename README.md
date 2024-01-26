@@ -1,4 +1,4 @@
-[![Go](https://github.com/hamidosouli/gorss/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/hamidosouli/gorss/actions/workflows/go.yml)
+[![Build status](https://github.com/hamidosouli/gorss/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/hamidosouli/gorss/actions/workflows/go.yml)
 # Gorss - Simple RSS Aggregator in Golang
 
 Gorss is a straightforward RSS aggregator written in Golang, allowing you to collect and store posts from your favorite RSS feeds.
